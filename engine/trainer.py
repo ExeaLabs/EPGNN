@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 import torch.backends.cudnn as cudnn
 
-def train_model(epochs=5, batch_size=4096, metadata_path='metadata_clean.csv', hdf5_path='mock_waveforms.hdf5', use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
+def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     
@@ -17,9 +17,9 @@ def train_model(epochs=5, batch_size=4096, metadata_path='metadata_clean.csv', h
         print("Enabled cuDNN autotuning for high performance.")
         
     try:
-        dataset = STEADGraphDataset(metadata_path=metadata_path, hdf5_path=hdf5_path)
-    except FileNotFoundError:
-        print("Dataset not found. Please generate or download it first.")
+        dataset = STEADGraphDataset()
+    except Exception as e:
+        print(f"Dataset loading error: {e}")
         return
 
     train_size = int(0.8 * len(dataset))

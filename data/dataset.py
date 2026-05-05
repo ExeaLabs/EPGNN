@@ -1,52 +1,57 @@
-import os
 import torch
-import pandas as pd
 import numpy as np
-import h5py
+import seisbench.data as sbd
 from torch_geometric.data import Dataset, Data
 
 class STEADGraphDataset(Dataset):
-    def __init__(self, metadata_path, hdf5_path, root='.', transform=None, pre_transform=None):
-        self.metadata_path = metadata_path
-        self.hdf5_path = hdf5_path
-        
-        if os.path.exists(metadata_path):
-            self.metadata = pd.read_csv(metadata_path)
-        else:
-            raise FileNotFoundError(f"Metadata file {metadata_path} not found.")
-            
+    def __init__(self, root='.', transform=None, pre_transform=None, **kwargs):
         super().__init__(root, transform, pre_transform)
+        # Initialize SeisBench STEAD dataset (downloads automatically if missing)
+        self.stead = sbd.STEAD(download=True)
         
+        # Spatial graph: 3 components (E, N, Z) treated as 3 fully connected nodes
         self.edge_index = torch.tensor([
             [0, 0, 1, 1, 2, 2],
             [1, 2, 0, 2, 0, 1]
         ], dtype=torch.long)
 
     def len(self):
-        return len(self.metadata)
+        return len(self.stead)
 
     def get(self, idx):
-        row = self.metadata.iloc[idx]
-        trace_name = row['trace_name']
-        label = row['label']
+        # Fetch waveform and metadata from SeisBench
+        waveform, metadata = self.stead.get_sample(idx)
         
-        with h5py.File(self.hdf5_path, 'r') as f:
-            if f"earthquake/{trace_name}" in f:
-                waveform = f[f"earthquake/{trace_name}"][:]
-            elif f"non_earthquake/{trace_name}" in f:
-                waveform = f[f"non_earthquake/{trace_name}"][:]
-            else:
-                waveform = f[trace_name][:]
-                
-        x = torch.tensor(waveform.T, dtype=torch.float)
+        # waveform shape is usually (3, samples). PyTorch Geometric treats this as 3 nodes with `samples` features.
+        x = torch.tensor(waveform, dtype=torch.float)
+        
+        # Determine label (1 for earthquake, 0 for noise)
+        trace_category = metadata.get("trace_category", "noise")
+        label = 1 if "earthquake" in trace_category else 0
         y = torch.tensor([label], dtype=torch.long)
-        mag = torch.tensor([row['source_magnitude'] if not pd.isna(row['source_magnitude']) else 0.0], dtype=torch.float)
-        pos = torch.tensor([[row['receiver_latitude'], row['receiver_longitude']]], dtype=torch.float)
-        precursor = torch.tensor([row['precursor']], dtype=torch.float)
         
+        # Source magnitude (fallback to 0.0 if NaN/None)
+        mag_val = metadata.get("source_magnitude")
+        if mag_val is None or np.isnan(mag_val):
+            mag_val = 0.0
+        mag = torch.tensor([mag_val], dtype=torch.float)
+        
+        # Receiver coordinates (fallback to 0.0 if missing)
+        lat = metadata.get("receiver_latitude", 0.0)
+        lon = metadata.get("receiver_longitude", 0.0)
+        pos = torch.tensor([[lat, lon]], dtype=torch.float)
+        
+        # Precursor flag (mocked for now, as STEAD natively doesn't label precursors)
+        precursor = torch.tensor([0.0], dtype=torch.float)
+        
+        # Pack into PyTorch Geometric Data object
         data = Data(x=x, edge_index=self.edge_index, y=y, pos=pos, mag=mag, precursor=precursor)
         
         return data
 
 if __name__ == '__main__':
-    ds = STEADGraphDataset(metadata_path='metadata_clean.csv', hdf5_path='mock_waveforms.hdf5')
+    ds = STEADGraphDataset()
+    print(f"Dataset length: {len(ds)}")
+    sample = ds[0]
+    print(f"Sample x shape: {sample.x.shape}")
+

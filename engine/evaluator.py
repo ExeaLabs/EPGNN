@@ -5,13 +5,13 @@ from data.dataset import STEADGraphDataset
 from models.gnn import MultimodalGNN
 from sklearn.metrics import f1_score, accuracy_score, mean_squared_error
 
-def evaluate_model(batch_size=4096, metadata_path='metadata_clean.csv', hdf5_path='mock_waveforms.hdf5', model_path='earthquake_gnn.pth', use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
+def evaluate_model(batch_size=4096, model_path='earthquake_gnn.pth', use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     try:
-        dataset = STEADGraphDataset(metadata_path=metadata_path, hdf5_path=hdf5_path)
-    except FileNotFoundError:
-        print("Dataset not found.")
+        dataset = STEADGraphDataset()
+    except Exception as e:
+        print(f"Dataset loading error: {e}")
         return
 
     num_workers = 16 if device.type == 'cuda' else 0
