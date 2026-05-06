@@ -6,7 +6,7 @@ class EPGNNLoss(nn.Module):
         super().__init__()
         self.clf_criterion = nn.CrossEntropyLoss()
         self.reg_criterion = nn.MSELoss()
-        self.pre_criterion = nn.BCELoss()
+        self.pre_criterion = nn.BCEWithLogitsLoss()
         self.mag_weight = mag_weight
         self.pre_weight = pre_weight
 
