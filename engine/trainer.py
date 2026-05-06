@@ -38,29 +38,37 @@ def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, u
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
     
-    for epoch in range(epochs):
-        model.train()
-        train_loss = 0.0
+    for data in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
+        data = data.to(device)
+        optimizer.zero_grad()
         
-        for data in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
-            data = data.to(device)
-            optimizer.zero_grad()
-            
-            if scaler is not None:
-                with torch.amp.autocast('cuda'):
-                    logits, mag_pred, pre_prob = model(data.x, data.edge_index, data.batch, data.pos)
-                    loss = criterion(logits, mag_pred, pre_prob, data.y, data.mag, data.precursor)
-                
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-            else:
+        # Check for bad inputs
+        if torch.isnan(data.x).any() or torch.isinf(data.x).any():
+            continue
+        
+        if scaler is not None:
+            with torch.amp.autocast('cuda'):
                 logits, mag_pred, pre_prob = model(data.x, data.edge_index, data.batch, data.pos)
                 loss = criterion(logits, mag_pred, pre_prob, data.y, data.mag, data.precursor)
-                loss.backward()
-                optimizer.step()
             
-            train_loss += loss.item()
+            if torch.isnan(loss) or torch.isinf(loss):
+                continue
+                
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            logits, mag_pred, pre_prob = model(data.x, data.edge_index, data.batch, data.pos)
+            loss = criterion(logits, mag_pred, pre_prob, data.y, data.mag, data.precursor)
+            if torch.isnan(loss) or torch.isinf(loss):
+                continue
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            optimizer.step()
+        
+        train_loss += loss.item()
             
         print(f"Epoch {epoch+1} | Train Loss: {train_loss/len(train_loader):.4f}")
             
