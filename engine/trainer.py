@@ -38,7 +38,7 @@ def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, u
         use_dropout=use_dropout
     ).to(device)
     
-    criterion = EPGNNLoss(mag_weight=0.1, precursor_weight=0.5)
+    criterion = EPGNNLoss(mag_weight=0.1, pre_weight=0.5)
     optimizer = optim.Adam(model.parameters(), lr=0.001)  # Increased learning rate from 1e-5
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=2)
     
