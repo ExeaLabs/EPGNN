@@ -1,77 +1,85 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, global_mean_pool
-from modules.waveform_cnn import WaveformCNN
-from modules.transformer import TemporalTransformer
-
-class MultimodalGNN(nn.Module):
-    def __init__(self, hidden_dim=64, use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
-        super().__init__()
-        self.use_cnn = use_cnn
-        self.use_transformer = use_transformer
-        self.use_gcn = use_gcn
-        self.use_dropout = use_dropout
+def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    
+    # Load dataset
+    dataset = STEADGraphDataset()
+    
+    # Ensure data types are correct in the dataset
+    for i in range(len(dataset)):
+        data = dataset[i]
+        data.x = data.x.float()
+        data.y = data.y.long()  # Classification labels should be long
+        data.mag = data.mag.float().view(-1, 1)
+        data.precursor = data.precursor.float().view(-1, 1)
+    
+    train_size = int(0.8 * len(dataset))
+    val_size = len(dataset) - train_size
+    train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
+    
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    
+    model = MultimodalGNN(
+        hidden_dim=64, 
+        use_cnn=use_cnn, 
+        use_transformer=use_transformer, 
+        use_gcn=use_gcn, 
+        use_dropout=use_dropout
+    ).to(device)
+    
+    criterion = EPGNNLoss(mag_weight=0.1, precursor_weight=0.5)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)  # Increased learning rate from 1e-5
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=2)
+    
+    for epoch in range(epochs):
+        model.train()
+        train_loss = 0.0
         
-        # Short-term pattern extractor
-        if self.use_cnn:
-            self.cnn_extractor = WaveformCNN(out_channels=hidden_dim)
-        else:
-            self.raw_proj = nn.LazyLinear(hidden_dim)
+        for batch_idx, data in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")):
+            data = data.to(device)
             
-        # Long-term trend/precursor detector
-        if self.use_transformer:
-            self.temporal_transformer = TemporalTransformer(input_dim=hidden_dim)
+            # Forward pass
+            logits, mag_pred, precursor_prob = model(data.x, data.edge_index, data.batch, data.pos)
             
-        # Spatial relationship detector
-        if self.use_gcn:
-            self.conv1 = GCNConv(hidden_dim, hidden_dim)
-            self.conv2 = GCNConv(hidden_dim, hidden_dim)
+            # Compute loss
+            loss = criterion(logits, mag_pred, precursor_prob, data.y, data.mag, data.precursor)
             
-        dropout_p = 0.3 if self.use_dropout else 0.0
-        self.clf_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout_p),
-            nn.Linear(hidden_dim // 2, 2) # Detection
-        )
+            # Check for valid loss
+            if torch.isnan(loss) or torch.isinf(loss):
+                print(f"Warning: Invalid loss at batch {batch_idx}, skipping...")
+                continue
+            
+            # Backward pass
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            optimizer.step()
+            
+            train_loss += loss.item()
+            
+            # Print batch loss occasionally
+            if batch_idx % 50 == 0:
+                print(f"Batch {batch_idx}, Loss: {loss.item():.4f}, LR: {optimizer.param_groups[0]['lr']:.6f}")
         
-        self.precursor_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
-            nn.Linear(hidden_dim // 2, 1) # Probability of event in next hour
-        )
+        avg_train_loss = train_loss / len(train_loader)
+        print(f"Epoch {epoch+1} | Train Loss: {avg_train_loss:.4f}")
         
-        self.mag_head = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
-            nn.Linear(hidden_dim // 2, 1) # Magnitude estimation
-        )
-
-    def forward(self, x, edge_index, batch, pos=None):
-        # 1. Extract features from waveforms
-        if self.use_cnn:
-            h = self.cnn_extractor(x)
-        else:
-            h = self.raw_proj(x)
-            
-        # 2. Reshape for Transformer (treating batch as sequence for this demo)
-        # In a real run, we would stack historical windows here
-        if self.use_transformer:
-            seq_features = h.unsqueeze(1) 
-            h = self.temporal_transformer(seq_features)
-            
-        # 3. Process spatial graph relationships
-        if self.use_gcn:
-            h = self.conv1(h, edge_index)
-            h = F.relu(h)
-            h = self.conv2(h, edge_index)
-            h = F.relu(h)
-            
-        graph_embed = global_mean_pool(h, batch)
+        # Validation (optional)
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for data in val_loader:
+                data = data.to(device)
+                logits, mag_pred, precursor_prob = model(data.x, data.edge_index, data.batch, data.pos)
+                loss = criterion(logits, mag_pred, precursor_prob, data.y, data.mag, data.precursor)
+                val_loss += loss.item()
         
-        logits = self.clf_head(graph_embed)
-        mag_pred = self.mag_head(graph_embed)
-        precursor_prob = torch.sigmoid(self.precursor_head(graph_embed))
+        avg_val_loss = val_loss / len(val_loader)
+        print(f"Epoch {epoch+1} | Val Loss: {avg_val_loss:.4f}")
         
-        return logits, mag_pred, precursor_prob
+        # Update learning rate
+        scheduler.step(avg_val_loss)
+        
+    torch.save(model.state_dict(), 'earthquake_gnn.pth')
+    print("Model saved to earthquake_gnn.pth")
