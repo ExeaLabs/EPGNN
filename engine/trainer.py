@@ -29,6 +29,14 @@ def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, u
     
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    # In trainer.py, right after loading the first batch:
+    for data in train_loader:
+        print(f"Data.x shape: {data.x.shape}")
+        print(f"Data.x dtype: {data.x.dtype}")
+        print(f"Data.x min/max: {data.x.min()}/{data.x.max()}")
+        print(f"Edge index shape: {data.edge_index.shape}")
+        print(f"Batch shape: {data.batch.shape}")
+        break  # Only print first batch
     
     model = MultimodalGNN(
         hidden_dim=64, 
