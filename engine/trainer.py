@@ -35,7 +35,7 @@ def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, u
     model = MultimodalGNN(hidden_dim=64, use_cnn=use_cnn, use_transformer=use_transformer, use_gcn=use_gcn, use_dropout=use_dropout).to(device)
 
     criterion = EPGNNLoss(mag_weight=0.1)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=1e-5)
     scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
     
     for data in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
