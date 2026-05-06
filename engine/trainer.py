@@ -9,7 +9,7 @@ from tqdm import tqdm
 import torch.backends.cudnn as cudnn
 
 def train_model(epochs=5, batch_size=4096, use_cnn=True, use_transformer=True, use_gcn=True, use_dropout=True):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda')
     print(f"Using device: {device}")
     
     if device.type == 'cuda':
