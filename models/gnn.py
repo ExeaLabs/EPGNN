@@ -16,6 +16,7 @@ class MultimodalGNN(nn.Module):
 
         # ✅ Dynamic input projection – works with any feature size (e.g., 6000)
         self.input_proj = nn.LazyLinear(hidden_dim)
+        self.input_norm = nn.LayerNorm(hidden_dim)
 
         # Optional CNN (only for raw waveforms, will be bypassed for 6000‑dim features)
         if self.use_cnn:
@@ -65,8 +66,15 @@ class MultimodalGNN(nn.Module):
         if x.dim() == 3:
             x = x.view(-1, x.size(-1))
 
+        # Guard against non-finite values and extreme feature scales.
+        x = torch.nan_to_num(x, nan=0.0, posinf=1e4, neginf=-1e4)
+        x_mean = x.mean(dim=-1, keepdim=True)
+        x_std = x.std(dim=-1, keepdim=True).clamp_min(1e-6)
+        x = (x - x_mean) / x_std
+
         # Project to hidden_dim (LazyLinear creates weights on first forward)
         h = self.input_proj(x)
+        h = self.input_norm(h)
 
         # CNN branch is skipped because input features are not raw 3‑channel waveforms
         # (you could add a reshape here if needed, but for 6000‑dim it's fine to skip)
@@ -98,6 +106,6 @@ class MultimodalGNN(nn.Module):
 
         logits = self.clf_head(graph_embed)
         mag_pred = self.mag_head(graph_embed)
-        precursor_prob = torch.sigmoid(self.precursor_head(graph_embed))
+        precursor_logits = self.precursor_head(graph_embed)
 
-        return logits, mag_pred, precursor_prob
+        return logits, mag_pred, precursor_logits
