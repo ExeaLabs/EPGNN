@@ -1,0 +1,162 @@
+{
+  "dataset": "STEAD",
+  "model": "EPGNN Ablation Suite",
+  "timestamp": "2026-05-08 12:52:24",
+  "num_runs": 14,
+  "results": [
+    {
+      "name": "CNN=False_TX=False_GCN=True_DO=False",
+      "use_cnn": false,
+      "use_transformer": false,
+      "use_gcn": true,
+      "use_dropout": false,
+      "accuracy": 0.19285556829377942,
+      "params": 394530,
+      "collapsed": false,
+      "runtime_sec": 1021.9987328052521
+    },
+    {
+      "name": "CNN=False_TX=False_GCN=True_DO=True",
+      "use_cnn": false,
+      "use_transformer": false,
+      "use_gcn": true,
+      "use_dropout": true,
+      "accuracy": 0.7337809532914525,
+      "params": 394530,
+      "collapsed": false,
+      "runtime_sec": 1008.0125112533569
+    },
+    {
+      "name": "CNN=False_TX=True_GCN=False_DO=False",
+      "use_cnn": false,
+      "use_transformer": true,
+      "use_gcn": false,
+      "use_dropout": false,
+      "accuracy": 0.2974391956114492,
+      "params": 1297826,
+      "collapsed": false,
+      "runtime_sec": 1022.0866985321045
+    },
+    {
+      "name": "CNN=False_TX=True_GCN=False_DO=True",
+      "use_cnn": false,
+      "use_transformer": true,
+      "use_gcn": false,
+      "use_dropout": true,
+      "accuracy": 0.8082252932666592,
+      "params": 1297826,
+      "collapsed": false,
+      "runtime_sec": 1011.4561886787415
+    },
+    {
+      "name": "CNN=False_TX=True_GCN=True_DO=False",
+      "use_cnn": false,
+      "use_transformer": true,
+      "use_gcn": true,
+      "use_dropout": false,
+      "accuracy": 0.813989098152185,
+      "params": 1306146,
+      "collapsed": true,
+      "runtime_sec": 1008.6582746505737
+    },
+    {
+      "name": "CNN=False_TX=True_GCN=True_DO=True",
+      "use_cnn": false,
+      "use_transformer": true,
+      "use_gcn": true,
+      "use_dropout": true,
+      "accuracy": 0.7286010348775379,
+      "params": 1306146,
+      "collapsed": false,
+      "runtime_sec": 1025.0217998027802
+    },
+    {
+      "name": "CNN=True_TX=False_GCN=False_DO=False",
+      "use_cnn": true,
+      "use_transformer": false,
+      "use_gcn": false,
+      "use_dropout": false,
+      "accuracy": 0.18600537112345603,
+      "params": 11298,
+      "collapsed": false,
+      "runtime_sec": 1037.229439496994
+    },
+    {
+      "name": "CNN=True_TX=False_GCN=False_DO=True",
+      "use_cnn": true,
+      "use_transformer": false,
+      "use_gcn": false,
+      "use_dropout": true,
+      "accuracy": 0.8197118176567585,
+      "params": 11298,
+      "collapsed": false,
+      "runtime_sec": 1047.8443565368652
+    },
+    {
+      "name": "CNN=True_TX=False_GCN=True_DO=False",
+      "use_cnn": true,
+      "use_transformer": false,
+      "use_gcn": true,
+      "use_dropout": false,
+      "accuracy": 0.18601090184781502,
+      "params": 19618,
+      "collapsed": true,
+      "runtime_sec": 1065.9835731983185
+    },
+    {
+      "name": "CNN=True_TX=False_GCN=True_DO=True",
+      "use_cnn": true,
+      "use_transformer": false,
+      "use_gcn": true,
+      "use_dropout": true,
+      "accuracy": 0.18601011174433515,
+      "params": 19618,
+      "collapsed": false,
+      "runtime_sec": 1053.0358157157898
+    },
+    {
+      "name": "CNN=True_TX=True_GCN=False_DO=False",
+      "use_cnn": true,
+      "use_transformer": true,
+      "use_gcn": false,
+      "use_dropout": false,
+      "accuracy": 0.813989098152185,
+      "params": 922914,
+      "collapsed": true,
+      "runtime_sec": 1044.4973313808441
+    },
+    {
+      "name": "CNN=True_TX=True_GCN=False_DO=True",
+      "use_cnn": true,
+      "use_transformer": true,
+      "use_gcn": false,
+      "use_dropout": true,
+      "accuracy": 0.813989098152185,
+      "params": 922914,
+      "collapsed": true,
+      "runtime_sec": 1050.7767612934113
+    },
+    {
+      "name": "CNN=True_TX=True_GCN=True_DO=False",
+      "use_cnn": true,
+      "use_transformer": true,
+      "use_gcn": true,
+      "use_dropout": false,
+      "accuracy": 0.1671614031289678,
+      "params": 931234,
+      "collapsed": false,
+      "runtime_sec": 1061.0861775875092
+    },
+    {
+      "name": "CNN=True_TX=True_GCN=True_DO=True",
+      "use_cnn": true,
+      "use_transformer": true,
+      "use_gcn": true,
+      "use_dropout": true,
+      "accuracy": 0.18601090184781502,
+      "params": 931234,
+      "collapsed": true,
+      "runtime_sec": 1058.8667359352112
+    }
+  ]
+}
