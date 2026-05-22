@@ -1,7 +1,7 @@
 {
   "dataset": "STEAD",
   "model": "EPGNN Ablation Suite",
-  "timestamp": "2026-05-08 12:52:24",
+  "timestamp": "2026-05-22 10:00:23",
   "num_runs": 14,
   "results": [
     {
@@ -10,10 +10,10 @@
       "use_transformer": false,
       "use_gcn": true,
       "use_dropout": false,
-      "accuracy": 0.19285556829377942,
+      "accuracy": 0.5187937964235176,
       "params": 394530,
       "collapsed": false,
-      "runtime_sec": 1021.9987328052521
+      "runtime_sec": 1040.9399151802063
     },
     {
       "name": "CNN=False_TX=False_GCN=True_DO=True",
@@ -21,10 +21,10 @@
       "use_transformer": false,
       "use_gcn": true,
       "use_dropout": true,
-      "accuracy": 0.7337809532914525,
+      "accuracy": 0.3380536748898003,
       "params": 394530,
       "collapsed": false,
-      "runtime_sec": 1008.0125112533569
+      "runtime_sec": 1034.5829401016235
     },
     {
       "name": "CNN=False_TX=True_GCN=False_DO=False",
@@ -32,10 +32,10 @@
       "use_transformer": true,
       "use_gcn": false,
       "use_dropout": false,
-      "accuracy": 0.2974391956114492,
+      "accuracy": 0.45802456747760256,
       "params": 1297826,
       "collapsed": false,
-      "runtime_sec": 1022.0866985321045
+      "runtime_sec": 1056.723745584488
     },
     {
       "name": "CNN=False_TX=True_GCN=False_DO=True",
@@ -43,10 +43,10 @@
       "use_transformer": true,
       "use_gcn": false,
       "use_dropout": true,
-      "accuracy": 0.8082252932666592,
+      "accuracy": 0.45547885406551697,
       "params": 1297826,
       "collapsed": false,
-      "runtime_sec": 1011.4561886787415
+      "runtime_sec": 1052.2159349918365
     },
     {
       "name": "CNN=False_TX=True_GCN=True_DO=False",
@@ -54,10 +54,10 @@
       "use_transformer": true,
       "use_gcn": true,
       "use_dropout": false,
-      "accuracy": 0.813989098152185,
+      "accuracy": 0.813978036703467,
       "params": 1306146,
-      "collapsed": true,
-      "runtime_sec": 1008.6582746505737
+      "collapsed": false,
+      "runtime_sec": 1081.3163125514984
     },
     {
       "name": "CNN=False_TX=True_GCN=True_DO=True",
@@ -65,10 +65,10 @@
       "use_transformer": true,
       "use_gcn": true,
       "use_dropout": true,
-      "accuracy": 0.7286010348775379,
+      "accuracy": 0.20248060888534572,
       "params": 1306146,
       "collapsed": false,
-      "runtime_sec": 1025.0217998027802
+      "runtime_sec": 1041.2940938472748
     },
     {
       "name": "CNN=True_TX=False_GCN=False_DO=False",
@@ -76,10 +76,10 @@
       "use_transformer": false,
       "use_gcn": false,
       "use_dropout": false,
-      "accuracy": 0.18600537112345603,
+      "accuracy": 0.814971196777642,
       "params": 11298,
       "collapsed": false,
-      "runtime_sec": 1037.229439496994
+      "runtime_sec": 1065.5620589256287
     },
     {
       "name": "CNN=True_TX=False_GCN=False_DO=True",
@@ -87,10 +87,10 @@
       "use_transformer": false,
       "use_gcn": false,
       "use_dropout": true,
-      "accuracy": 0.8197118176567585,
+      "accuracy": 0.18601090184781502,
       "params": 11298,
-      "collapsed": false,
-      "runtime_sec": 1047.8443565368652
+      "collapsed": true,
+      "runtime_sec": 1059.8639514446259
     },
     {
       "name": "CNN=True_TX=False_GCN=True_DO=False",
@@ -98,10 +98,10 @@
       "use_transformer": false,
       "use_gcn": true,
       "use_dropout": false,
-      "accuracy": 0.18601090184781502,
+      "accuracy": 0.452253651660758,
       "params": 19618,
-      "collapsed": true,
-      "runtime_sec": 1065.9835731983185
+      "collapsed": false,
+      "runtime_sec": 1057.4630477428436
     },
     {
       "name": "CNN=True_TX=False_GCN=True_DO=True",
@@ -109,10 +109,10 @@
       "use_transformer": false,
       "use_gcn": true,
       "use_dropout": true,
-      "accuracy": 0.18601011174433515,
+      "accuracy": 0.18601090184781502,
       "params": 19618,
-      "collapsed": false,
-      "runtime_sec": 1053.0358157157898
+      "collapsed": true,
+      "runtime_sec": 1019.4285428524017
     },
     {
       "name": "CNN=True_TX=True_GCN=False_DO=False",
@@ -120,10 +120,10 @@
       "use_transformer": true,
       "use_gcn": false,
       "use_dropout": false,
-      "accuracy": 0.813989098152185,
+      "accuracy": 0.18218601090184783,
       "params": 922914,
-      "collapsed": true,
-      "runtime_sec": 1044.4973313808441
+      "collapsed": false,
+      "runtime_sec": 1049.473629951477
     },
     {
       "name": "CNN=True_TX=True_GCN=False_DO=True",
@@ -131,10 +131,10 @@
       "use_transformer": true,
       "use_gcn": false,
       "use_dropout": true,
-      "accuracy": 0.813989098152185,
+      "accuracy": 0.18401273014726738,
       "params": 922914,
-      "collapsed": true,
-      "runtime_sec": 1050.7767612934113
+      "collapsed": false,
+      "runtime_sec": 1036.383134841919
     },
     {
       "name": "CNN=True_TX=True_GCN=True_DO=False",
@@ -142,10 +142,10 @@
       "use_transformer": true,
       "use_gcn": true,
       "use_dropout": false,
-      "accuracy": 0.1671614031289678,
+      "accuracy": 0.813989098152185,
       "params": 931234,
-      "collapsed": false,
-      "runtime_sec": 1061.0861775875092
+      "collapsed": true,
+      "runtime_sec": 1035.690892457962
     },
     {
       "name": "CNN=True_TX=True_GCN=True_DO=True",
@@ -156,7 +156,7 @@
       "accuracy": 0.18601090184781502,
       "params": 931234,
       "collapsed": true,
-      "runtime_sec": 1058.8667359352112
+      "runtime_sec": 1058.562781572342
     }
   ]
 }
